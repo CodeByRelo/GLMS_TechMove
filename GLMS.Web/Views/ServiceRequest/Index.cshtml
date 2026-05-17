@@ -1,0 +1,92 @@
+﻿@model IEnumerable<GLMS.Core.Entities.ServiceRequest>
+
+@{
+    ViewData["Title"] = "Service Requests";
+}
+
+<!-- Hero Section -->
+<div class="text-center mb-5">
+    <h1 class="display-4 fw-bold">Service Request Management</h1>
+    <p class="lead text-muted">
+        Track and manage all logistics service requests. Use filters to quickly locate
+        pending or completed requests, and take immediate action with streamlined tools.
+    </p>
+</div>
+
+<!-- ➕ Create Request -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-semibold">Manage Requests</h4>
+    <a asp-action="Create" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Raise New Request
+    </a>
+</div>
+
+<!-- 📋 Requests Table -->
+<div class="card shadow-lg border-0">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0"><i class="bi bi-truck"></i> Request List</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Contract</th>
+                        <th>Description</th>
+                        <th>Cost (USD)</th>
+                        <th>Cost (ZAR)</th>
+                        <th>Status</th>
+                        <th>Created Date</th>
+                        <th class="text-center" width="250">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-semibold">#@item.Id</td>
+                            <td>
+                                Contract #@item.Contract?.Id -
+                                @item.Contract?.ServiceLevel
+                                [@item.Contract?.StartDate.ToString("yyyy-MM-dd")
+                                to @item.Contract?.EndDate.ToString("yyyy-MM-dd")]
+                            </td>
+                            <td>@item.Description</td>
+                            <td>@($"${item.CostUSD:N2}")</td>
+                            <td>@($"R{item.CostZAR:N2}")</td>
+                            <td>
+                                <span class="badge
+                                    @(item.Status == "Pending" ? "bg-warning text-dark" :
+                                                                            item.Status == "Completed" ? "bg-success" :
+                                                                            "bg-secondary")">
+                                    @item.Status
+                                </span>
+                            </td>
+                            <td>@item.CreatedDate.ToShortDateString()</td>
+                            <td class="text-center">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm me-1">
+                                    <i class="bi bi-eye"></i> Details
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm me-1">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Footer Narrative -->
+<div class="mt-4 text-muted text-center">
+    <small>
+        The service request dashboard empowers TechMove Logistics to monitor workflows,
+        ensure timely completion, and maintain client satisfaction across regions.
+    </small>
+</div>

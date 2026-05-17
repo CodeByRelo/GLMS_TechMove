@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Global Logistics Management System</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/GLMS.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+</head>
+<body>
+    <!-- 🌐 Navbar -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+            <div class="container-fluid">
+
+                <!-- LEFT SECTION -->
+                <a class="navbar-brand fw-bold"
+                       asp-controller="Home"
+                       asp-action="Index">
+                    <i class="bi bi-globe"></i> GLMS Portal - Tshwarelo Lephoto
+                </a>
+
+                <!-- TOGGLER -->
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarMain"
+                        aria-controls="navbarMain"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- RIGHT SECTION -->
+                <div class="collapse navbar-collapse justify-content-end" id="navbarMain">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active fw-semibold text-warning" : "")"
+                                   asp-controller="Home"
+                                   asp-action="Index">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Contract" ? "active fw-semibold text-warning" : "")"
+                                   asp-controller="Contract"
+                                   asp-action="Index">
+                                <i class="bi bi-file-earmark-text"></i> Contracts
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ServiceRequest" ? "active fw-semibold text-warning" : "")"
+                                   asp-controller="ServiceRequest"
+                                   asp-action="Index">
+                                <i class="bi bi-truck"></i> Requests
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Client" ? "active fw-semibold text-warning" : "")"
+                                   asp-controller="Client"
+                                   asp-action="Index">
+                                <i class="bi bi-people"></i> Clients
+                            </a>
+                        </li>
+
+                        <!-- 🔒 Privacy Policy Link -->
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active fw-semibold text-warning" : "")"
+                                   asp-controller="Home"
+                                   asp-action="Privacy">
+                                <i class="bi bi-shield-lock"></i> Privacy
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+
+            </div>
+        </nav>
+    </header>
+
+    <!-- 📦 Main Content -->
+    <div class="container my-4">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- 📝 Footer -->
+    <footer class="bg-dark text-light py-3 mt-auto">
+        <div class="container text-center">
+            <small>
+                &copy; 2026 TechMove Logistics | GLMS Portal | Tshwarelo Lephoto<br />
+                <span class="text-muted">Empowering global logistics with clarity and control.</span><br />
+                <a asp-controller="Home" asp-action="Privacy" class="text-light text-decoration-none">
+                    <i class="bi bi-shield-lock"></i> Privacy Policy
+                </a>
+            </small>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

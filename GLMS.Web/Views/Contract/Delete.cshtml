@@ -1,0 +1,80 @@
+﻿@model GLMS.Core.Entities.Contract
+
+@{
+    ViewData["Title"] = "Delete Contract";
+}
+
+<!-- Hero Section -->
+<div class="text-center mb-5">
+    <h1 class="display-5 fw-bold text-danger">Delete Contract</h1>
+    <p class="lead text-muted">
+        You are about to permanently remove this contract from the Global Logistics Management System.
+        This action cannot be undone — please review the details carefully before confirming.
+    </p>
+</div>
+
+<!-- Error / Validation Summary -->
+@if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+
+<!-- Contract Details Card -->
+<div class="card shadow-lg border-0 mb-4">
+    <div class="card-header bg-danger text-white">
+        <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirm Deletion</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-hash"></i> Contract ID</dt>
+            <dd class="col-sm-9">#@Model.Id</dd>
+
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-person"></i> Client</dt>
+            <dd class="col-sm-9">@Model.Client?.Name (@Model.ClientId)</dd>
+
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-gear"></i> Service Level</dt>
+            <dd class="col-sm-9">@Model.ServiceLevel</dd>
+
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-check-circle"></i> Status</dt>
+            <dd class="col-sm-9">
+                <span class="badge
+                    @(Model.Status == GLMS.Core.Enums.ContractStatus.Active ? "bg-success" :
+                                            Model.Status == GLMS.Core.Enums.ContractStatus.Expired ? "bg-danger" :
+                                            Model.Status == GLMS.Core.Enums.ContractStatus.OnHold ? "bg-warning text-dark" :
+                                            "bg-secondary")">
+                    @Model.Status
+                </span>
+            </dd>
+
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-calendar-event"></i> Start Date</dt>
+            <dd class="col-sm-9">@Model.StartDate.ToShortDateString()</dd>
+
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-calendar-x"></i> End Date</dt>
+            <dd class="col-sm-9">@Model.EndDate.ToShortDateString()</dd>
+        </dl>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<form asp-action="Delete" method="post" class="text-center">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger btn-lg me-2">
+        <i class="bi bi-trash"></i> Confirm Delete
+    </button>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+        <i class="bi bi-arrow-left"></i> Cancel
+    </a>
+</form>
+
+<!-- Footer Narrative -->
+<div class="mt-4 text-muted text-center">
+    <small>
+        Deleting a contract will remove all associated records from the system.
+        Ensure this action aligns with compliance and operational requirements.
+    </small>
+</div>

@@ -1,0 +1,130 @@
+﻿@model IEnumerable<GLMS.Core.Entities.Contract>
+
+@{
+    ViewData["Title"] = "Contracts";
+}
+
+<!-- Hero Section -->
+<div class="text-center mb-5">
+    <h1 class="display-4 fw-bold">Contract Management</h1>
+    <p class="lead text-muted">
+        Review and manage all client contracts in one place. Use the filters below to
+        quickly locate agreements by date range or status, and take immediate action
+        with streamlined tools.
+    </p>
+</div>
+
+<!-- 🔍 Search/Filter Panel -->
+<div class="card mb-4 shadow-lg border-0">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-funnel"></i> Filter Contracts</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Search" method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="startDate" class="form-label fw-semibold">Start Date</label>
+                <input type="date" name="startDate" value="@Context.Request.Query["startDate"]" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label for="endDate" class="form-label fw-semibold">End Date</label>
+                <input type="date" name="endDate" value="@Context.Request.Query["endDate"]" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label for="status" class="form-label fw-semibold">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">-- Any --</option>
+                    @foreach (var s in Enum.GetNames(typeof(GLMS.Core.Enums.ContractStatus)))
+                    {
+                        <option value="@s" selected="@(Context.Request.Query["status"] == s ? "selected" : null)">
+                            @s
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3 align-self-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Apply Filter
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary w-100 mt-2">
+                    <i class="bi bi-arrow-repeat"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ➕ Create Contract -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-semibold">Manage Contracts</h4>
+    <a asp-action="Create" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Create Contract
+    </a>
+</div>
+
+<!-- 📋 Contracts Table -->
+<div class="card shadow-lg border-0">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> Contract List</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Client ID</th>
+                        <th>Service Level</th>
+                        <th>Status</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th class="text-center" width="300">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@item.ClientId</td>
+                            <td>@item.ServiceLevel</td>
+                            <td>
+                                <span class="badge
+                                    @(item.Status == GLMS.Core.Enums.ContractStatus.Active ? "bg-success" :
+                                                                              item.Status == GLMS.Core.Enums.ContractStatus.Expired ? "bg-danger" :
+                                                                              item.Status == GLMS.Core.Enums.ContractStatus.OnHold ? "bg-warning text-dark" :
+                                                                              "bg-secondary")">
+                                    @item.Status
+                                </span>
+                            </td>
+                            <td>@item.StartDate.ToShortDateString()</td>
+                            <td>@item.EndDate.ToShortDateString()</td>
+                            <td class="text-center">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm me-1">
+                                    <i class="bi bi-eye"></i> Details
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm me-1">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm me-1">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                                @if (!string.IsNullOrEmpty(item.SignedAgreementPath))
+                                {
+                                    <a asp-action="Download" asp-route-filePath="@item.SignedAgreementPath" class="btn btn-outline-success btn-sm">
+                                        <i class="bi bi-file-earmark-pdf"></i> PDF
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Footer Narrative -->
+<div class="mt-4 text-muted text-center">
+    <small>
+        The contract management dashboard empowers TechMove Logistics to monitor agreements,
+        ensure compliance, and streamline operations across regions.
+    </small>
+</div>

@@ -1,0 +1,90 @@
+﻿@model HomeDashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<!-- Hero Section -->
+<div class="text-center mb-5">
+    <h1 class="display-4 fw-bold">Global Logistics Management System</h1>
+    <p class="lead text-muted">
+        Welcome to TechMove’s enterprise portal. This dashboard provides a high-level overview
+        of contracts, service requests, and client operations — designed for clarity, speed,
+        and decision-making at scale.
+    </p>
+</div>
+
+<!-- Overview Row -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-lg border-0">
+            <div class="card-body">
+                <h3 class="card-title">📑 Contracts Overview</h3>
+                <p class="text-muted">
+                    Manage international freight agreements and monitor contract lifecycles.
+                    Stay ahead of expirations and ensure compliance with SLAs.
+                </p>
+                <h2 class="fw-bold">@Model.TotalContracts</h2>
+                <span class="badge bg-success me-2">Active: @Model.ActiveContracts</span>
+                <span class="badge bg-danger">Expired: @Model.ExpiredContracts</span>
+            </div>
+            <div class="card-footer bg-light">
+                <a asp-controller="Contract" asp-action="Index" class="btn btn-outline-primary">
+                    Go to Contracts
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow-lg border-0">
+            <div class="card-body">
+                <h3 class="card-title">🚚 Service Requests</h3>
+                <p class="text-muted">
+                    Track logistics requests linked to contracts. Ensure requests are validated
+                    against active agreements and monitor completion rates.
+                </p>
+                <h2 class="fw-bold">@(Model.PendingRequests + Model.CompletedRequests)</h2>
+                <span class="badge bg-warning text-dark me-2">Pending: @Model.PendingRequests</span>
+                <span class="badge bg-success">Completed: @Model.CompletedRequests</span>
+            </div>
+            <div class="card-footer bg-light">
+                <a asp-controller="ServiceRequest" asp-action="Index" class="btn btn-outline-warning">
+                    Go to Requests
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Access Section -->
+<div class="card shadow-lg border-0 mb-5">
+    <div class="card-header bg-secondary text-white">
+        <h4 class="mb-0">⚡ Quick Access</h4>
+    </div>
+    <div class="card-body">
+        <p class="text-muted">
+            Jump straight into the most common actions. Whether you’re onboarding a new client,
+            raising a logistics request, or reviewing contracts, everything is one click away.
+        </p>
+        <div class="list-group list-group-flush">
+            <a asp-controller="Contract" asp-action="Create" class="list-group-item list-group-item-action">
+                ➕ Create New Contract
+            </a>
+            <a asp-controller="ServiceRequest" asp-action="Create" class="list-group-item list-group-item-action">
+                📦 Raise Service Request
+            </a>
+            <a asp-controller="Client" asp-action="Index" class="list-group-item list-group-item-action">
+                👤 View Clients
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Footer Narrative -->
+<div class="text-center text-muted mt-4">
+    <p>
+        Designed for scalability and resilience, the GLMS dashboard ensures TechMove Logistics
+        can adapt to growth, streamline workflows, and deliver world-class service.
+    </p>
+</div>

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="../../../../../../../../Dev/GLMS/GLMS.Core/GLMS.Core.csproj" />
+  <Project Path="../../../../../../../../Dev/GLMS/GLMS.Infrastructure/GLMS.Infrastructure.csproj" />
+  <Project Path="../../../../../../../../Dev/GLMS/GLMS.Tests/GLMS.Tests.csproj" />
+  <Project Path="../../../../../../../../Dev/GLMS/GLMS.Web/GLMS.Web.csproj" />
+</Solution>

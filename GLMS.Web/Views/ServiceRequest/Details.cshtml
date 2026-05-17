@@ -1,0 +1,77 @@
+﻿@model GLMS.Core.Entities.ServiceRequest
+
+@{
+    ViewData["Title"] = "Service Request Details";
+}
+
+<!-- Hero Section -->
+<div class="text-center mb-5">
+    <h1 class="display-5 fw-bold">Service Request Profile</h1>
+    <p class="lead text-muted">
+        Review the service request details below. This profile provides quick access
+        to contract linkage, description, and cost tracking in both USD and ZAR.
+    </p>
+</div>
+
+<!-- Request Card -->
+<div class="card shadow-lg border-0">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0"><i class="bi bi-truck"></i> Request #@Model.Id</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-file-earmark-text"></i> Contract</dt>
+            <dd class="col-sm-9">
+                Contract #@Model.Contract?.Id -
+                @Model.Contract?.ServiceLevel
+                [@Model.Contract?.StartDate.ToString("yyyy-MM-dd")
+                to @Model.Contract?.EndDate.ToString("yyyy-MM-dd")]
+            </dd>
+
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-card-text"></i> Description</dt>
+            <dd class="col-sm-9">@Model.Description</dd>
+
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-currency-dollar"></i> Cost (USD)</dt>
+            <dd class="col-sm-9">@($"${Model.CostUSD:N2}")</dd>
+
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-cash-stack"></i> Cost (ZAR)</dt>
+            <dd class="col-sm-9">@($"R{Model.CostZAR:N2}")</dd>
+
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-check-circle"></i> Status</dt>
+            <dd class="col-sm-9">
+                <span class="badge
+                    @(Model.Status == "Pending" ? "bg-warning text-dark" :
+                                            Model.Status == "Completed" ? "bg-success" :
+                                            "bg-secondary")">
+                    @Model.Status
+                </span>
+            </dd>
+
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-calendar-event"></i> Created Date</dt>
+            <dd class="col-sm-9">@Model.CreatedDate.ToShortDateString()</dd>
+        </dl>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="mt-4 d-flex justify-content-between">
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Requests
+    </a>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">
+            <i class="bi bi-pencil-square"></i> Edit
+        </a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Delete
+        </a>
+    </div>
+</div>
+
+<!-- Footer Narrative -->
+<div class="mt-4 text-muted text-center">
+    <small>
+        Service request profiles in GLMS ensure accurate tracking of logistics operations,
+        transparent cost management, and efficient client service delivery.
+    </small>
+</div>

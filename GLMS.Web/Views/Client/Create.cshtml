@@ -1,0 +1,67 @@
+﻿@model GLMS.Core.Entities.Client
+
+@{
+    ViewData["Title"] = "Create Client";
+}
+
+<!-- Hero Section -->
+<div class="text-center mb-5">
+    <h1 class="display-4 fw-bold">Add New Client</h1>
+    <p class="lead text-muted">
+        Register a new client into the Global Logistics Management System.
+        Provide accurate details to ensure seamless communication and regional tracking.
+    </p>
+</div>
+
+<!-- Form Card -->
+<div class="card shadow-lg border-0">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-person-plus"></i> Client Information</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post" class="needs-validation" novalidate>
+            
+            <!-- Name -->
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label fw-semibold">
+                    <i class="bi bi-person"></i> Full Name
+                </label>
+                <input asp-for="Name" class="form-control" placeholder="Enter client name" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <!-- Contact Details -->
+            <div class="mb-3">
+                <label asp-for="ContactDetails" class="form-label fw-semibold">
+                    <i class="bi bi-envelope"></i> Contact Details
+                </label>
+                <input asp-for="ContactDetails" class="form-control" placeholder="Email or phone number" />
+                <span asp-validation-for="ContactDetails" class="text-danger"></span>
+            </div>
+
+            <!-- Region -->
+            <div class="mb-3">
+                <label asp-for="Region" class="form-label fw-semibold">
+                    <i class="bi bi-geo-alt"></i> Region
+                </label>
+                <input asp-for="Region" class="form-control" placeholder="e.g. Southern Africa" />
+                <span asp-validation-for="Region" class="text-danger"></span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Clients
+                </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle"></i> Save Client
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Validation Scripts -->
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

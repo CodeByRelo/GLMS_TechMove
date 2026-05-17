@@ -1,0 +1,103 @@
+﻿@model GLMS.Core.Entities.Contract
+
+@{
+    ViewData["Title"] = "Edit Contract";
+}
+
+<!-- Hero Section -->
+<div class="text-center mb-5">
+    <h1 class="display-5 fw-bold">Edit Contract</h1>
+    <p class="lead text-muted">
+        Update contract details below. Ensure accuracy to maintain compliance and
+        streamline logistics operations across the GLMS portal.
+    </p>
+</div>
+
+<!-- Form Card -->
+<div class="card shadow-lg border-0">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="bi bi-pencil-square"></i> Contract Information</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            <input type="hidden" asp-for="Id" />
+
+            <!-- Client -->
+            <div class="mb-3">
+                <label asp-for="ClientId" class="form-label fw-semibold">
+                    <i class="bi bi-person"></i> Client
+                </label>
+                <select asp-for="ClientId" asp-items="ViewBag.Clients" class="form-select">
+                    <option value="">-- Select Client --</option>
+                </select>
+            </div>
+
+            <!-- Service Level -->
+            <div class="mb-3">
+                <label asp-for="ServiceLevel" class="form-label fw-semibold">
+                    <i class="bi bi-gear"></i> Service Level
+                </label>
+                <input asp-for="ServiceLevel" class="form-control" placeholder="e.g. Premium Freight" />
+            </div>
+
+            <!-- Status -->
+            <div class="mb-3">
+                <label asp-for="Status" class="form-label fw-semibold">
+                    <i class="bi bi-check2-circle"></i> Status
+                </label>
+                <select asp-for="Status" class="form-select">
+                    <option value="Draft">Draft</option>
+                    <option value="Active">Active</option>
+                    <option value="Expired">Expired</option>
+                    <option value="OnHold">On Hold</option>
+                </select>
+            </div>
+
+            <!-- Start Date -->
+            <div class="mb-3">
+                <label asp-for="StartDate" class="form-label fw-semibold">
+                    <i class="bi bi-calendar-event"></i> Start Date
+                </label>
+                <input asp-for="StartDate" type="date" class="form-control" />
+            </div>
+
+            <!-- End Date -->
+            <div class="mb-3">
+                <label asp-for="EndDate" class="form-label fw-semibold">
+                    <i class="bi bi-calendar-x"></i> End Date
+                </label>
+                <input asp-for="EndDate" type="date" class="form-control" />
+            </div>
+
+            <!-- Agreement Upload -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">
+                    <i class="bi bi-file-earmark-pdf"></i> Upload New Agreement (PDF)
+                </label>
+                <input type="file" name="file" class="form-control" />
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Contracts
+                </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Footer Narrative -->
+<div class="mt-4 text-muted text-center">
+    <small>
+        Editing contracts ensures TechMove Logistics maintains accurate records,
+        compliance with service agreements, and operational efficiency across regions.
+    </small>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

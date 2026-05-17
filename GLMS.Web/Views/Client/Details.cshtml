@@ -1,0 +1,54 @@
+﻿@model GLMS.Core.Entities.Client
+
+@{
+    ViewData["Title"] = "Client Details";
+}
+
+<!-- Hero Section -->
+<div class="text-center mb-5">
+    <h1 class="display-5 fw-bold">Client Profile</h1>
+    <p class="lead text-muted">
+        Review the client’s information below. This profile provides quick access to
+        contact details and regional assignment for streamlined relationship management.
+    </p>
+</div>
+
+<!-- Client Card -->
+<div class="card shadow-lg border-0">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-person-circle"></i> @Model.Name</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3 fw-semibold">
+                <i class="bi bi-envelope"></i> Contact Details
+            </dt>
+            <dd class="col-sm-9">@Model.ContactDetails</dd>
+
+            <dt class="col-sm-3 fw-semibold">
+                <i class="bi bi-geo-alt"></i> Region
+            </dt>
+            <dd class="col-sm-9">
+                <span class="badge bg-info text-dark">@Model.Region</span>
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="mt-4 d-flex justify-content-between">
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Clients
+    </a>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+        <i class="bi bi-pencil-square"></i> Edit Client
+    </a>
+</div>
+
+<!-- Footer Narrative -->
+<div class="mt-4 text-muted text-center">
+    <small>
+        Client profiles in GLMS ensure accurate records for contracts, requests, and
+        regional operations — empowering TechMove Logistics to deliver world-class service.
+    </small>
+</div>

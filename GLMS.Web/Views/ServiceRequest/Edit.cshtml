@@ -1,0 +1,76 @@
+﻿@model GLMS.Core.Entities.ServiceRequest
+
+@{
+    ViewData["Title"] = "Edit Service Request";
+}
+
+<!-- Hero Section -->
+<div class="text-center mb-5">
+    <h1 class="display-5 fw-bold">Edit Service Request</h1>
+    <p class="lead text-muted">
+        Update the service request details below. Ensure accuracy to maintain
+        seamless logistics operations and proper cost tracking across the GLMS portal.
+    </p>
+</div>
+
+<!-- Form Card -->
+<div class="card shadow-lg border-0">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="bi bi-pencil-square"></i> Request Information</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post" class="needs-validation" novalidate>
+            <input type="hidden" asp-for="Id" />
+
+            <!-- Contract Dropdown -->
+            <div class="mb-3">
+                <label asp-for="ContractId" class="form-label fw-semibold">
+                    <i class="bi bi-file-earmark-text"></i> Contract
+                </label>
+                <select asp-for="ContractId" class="form-select" asp-items="ViewBag.Contracts">
+                    <option value="">-- Select Contract --</option>
+                </select>
+                <span asp-validation-for="ContractId" class="text-danger"></span>
+                <small class="text-muted">
+                    Each option shows Contract ID, Client Name, Service Level, and Start/End dates.
+                </small>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label fw-semibold">
+                    <i class="bi bi-card-text"></i> Description
+                </label>
+                <input asp-for="Description" class="form-control" placeholder="Enter request details" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <!-- Cost -->
+            <div class="mb-3">
+                <label asp-for="CostUSD" class="form-label fw-semibold">
+                    <i class="bi bi-currency-dollar"></i> Cost (USD)
+                </label>
+                <input asp-for="CostUSD" class="form-control" placeholder="e.g. 1200" />
+                <span asp-validation-for="CostUSD" class="text-danger"></span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Update Request
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Footer Narrative -->
+<div class="mt-4 text-muted text-center">
+    <small>
+        Editing service requests ensures TechMove Logistics maintains accurate records,
+        transparent cost tracking, and efficient operations across client contracts.
+    </small>
+</div>

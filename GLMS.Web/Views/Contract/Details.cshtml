@@ -1,0 +1,86 @@
+﻿@model GLMS.Core.Entities.Contract
+
+@{
+    ViewData["Title"] = "Contract Details";
+}
+
+<!-- Hero Section -->
+<div class="text-center mb-5">
+    <h1 class="display-5 fw-bold">Contract Profile</h1>
+    <p class="lead text-muted">
+        Review the contract details below. This profile provides quick access to
+        client information, service level agreements, and compliance documents.
+    </p>
+</div>
+
+<!-- Contract Card -->
+<div class="card shadow-lg border-0">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> Contract Information</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-person"></i> Client</dt>
+            <dd class="col-sm-9">@Model.Client?.Name</dd>
+
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-gear"></i> Service Level</dt>
+            <dd class="col-sm-9">@Model.ServiceLevel</dd>
+
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-check-circle"></i> Status</dt>
+            <dd class="col-sm-9">
+                <span class="badge
+                    @(Model.Status == GLMS.Core.Enums.ContractStatus.Active ? "bg-success" :
+                                            Model.Status == GLMS.Core.Enums.ContractStatus.Expired ? "bg-danger" :
+                                            Model.Status == GLMS.Core.Enums.ContractStatus.OnHold ? "bg-warning text-dark" :
+                                            "bg-secondary")">
+                    @Model.Status
+                </span>
+            </dd>
+
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-calendar-event"></i> Start Date</dt>
+            <dd class="col-sm-9">@Model.StartDate.ToShortDateString()</dd>
+
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-calendar-x"></i> End Date</dt>
+            <dd class="col-sm-9">@Model.EndDate.ToShortDateString()</dd>
+
+            <dt class="col-sm-3 fw-semibold"><i class="bi bi-file-earmark-pdf"></i> Agreement</dt>
+            <dd class="col-sm-9">
+                @if (!string.IsNullOrEmpty(Model.SignedAgreementPath))
+                {
+                    <a asp-action="Download"
+                           asp-route-filePath="@Model.SignedAgreementPath"
+                           class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-download"></i> Download PDF
+                    </a>
+                }
+                else
+                {
+                    <span class="text-muted">No file uploaded</span>
+                }
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="mt-4 d-flex justify-content-between">
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Contracts
+    </a>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">
+            <i class="bi bi-pencil-square"></i> Edit
+        </a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Delete
+        </a>
+    </div>
+</div>
+
+<!-- Footer Narrative -->
+<div class="mt-4 text-muted text-center">
+    <small>
+        Contract profiles in GLMS ensure compliance, transparency, and operational efficiency
+        across client agreements worldwide.
+    </small>
+</div>

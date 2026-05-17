@@ -1,0 +1,78 @@
+﻿@model IEnumerable<GLMS.Core.Entities.Client>
+
+@{
+    ViewData["Title"] = "Clients";
+}
+
+<!-- Hero Section -->
+<div class="text-center mb-5">
+    <h1 class="display-4 fw-bold">Client Directory</h1>
+    <p class="lead text-muted">
+        Explore TechMove’s global client base. This directory provides quick access to
+        client details, regions, and contact information — designed for clarity and
+        streamlined relationship management.
+    </p>
+</div>
+
+<!-- Create Button -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-semibold">Manage Clients</h4>
+    <a asp-action="Create" class="btn btn-success">
+        <i class="bi bi-person-plus"></i> Add New Client
+    </a>
+</div>
+
+<!-- Clients Table -->
+<div class="card shadow-lg border-0">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-people"></i> Client List</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Contact Details</th>
+                        <th>Region</th>
+                        <th class="text-center" width="250">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@item.Name</td>
+                            <td>@item.ContactDetails</td>
+                            <td>
+                                <span class="badge bg-info text-dark">@item.Region</span>
+                            </td>
+                            <td class="text-center">
+                                <a asp-action="Details" asp-route-id="@item.Id"
+                                       class="btn btn-outline-info btn-sm me-1">
+                                    <i class="bi bi-eye"></i> Details
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.Id"
+                                       class="btn btn-outline-warning btn-sm me-1">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id"
+                                       class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Footer Narrative -->
+<div class="mt-4 text-muted text-center">
+    <small>
+        The client directory empowers TechMove Logistics to maintain strong partnerships
+        across regions, ensuring seamless communication and global reach.
+    </small>
+</div>

@@ -1,0 +1,68 @@
+﻿@model GLMS.Core.Entities.Client
+
+@{
+    ViewData["Title"] = "Edit Client";
+}
+
+<!-- Hero Section -->
+<div class="text-center mb-5">
+    <h1 class="display-5 fw-bold">Edit Client Profile</h1>
+    <p class="lead text-muted">
+        Update the client’s information below. Ensure details are accurate to maintain
+        seamless communication and proper regional assignment across the GLMS portal.
+    </p>
+</div>
+
+<!-- Form Card -->
+<div class="card shadow-lg border-0">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="bi bi-pencil-square"></i> Update Client Information</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post" class="needs-validation" novalidate>
+            <input type="hidden" asp-for="Id" />
+
+            <!-- Name -->
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label fw-semibold">
+                    <i class="bi bi-person"></i> Full Name
+                </label>
+                <input asp-for="Name" class="form-control" placeholder="Enter client name" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <!-- Contact Details -->
+            <div class="mb-3">
+                <label asp-for="ContactDetails" class="form-label fw-semibold">
+                    <i class="bi bi-envelope"></i> Contact Details
+                </label>
+                <input asp-for="ContactDetails" class="form-control" placeholder="Email or phone number" />
+                <span asp-validation-for="ContactDetails" class="text-danger"></span>
+            </div>
+
+            <!-- Region -->
+            <div class="mb-3">
+                <label asp-for="Region" class="form-label fw-semibold">
+                    <i class="bi bi-geo-alt"></i> Region
+                </label>
+                <input asp-for="Region" class="form-control" placeholder="e.g. Southern Africa" />
+                <span asp-validation-for="Region" class="text-danger"></span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Clients
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Update Client
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Validation Scripts -->
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

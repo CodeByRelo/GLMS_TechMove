@@ -1,0 +1,90 @@
+﻿@model GLMS.Core.Entities.Contract
+
+@{
+    ViewData["Title"] = "Create Contract";
+}
+
+<!-- Hero Section -->
+<div class="text-center mb-5">
+    <h1 class="display-5 fw-bold">Create New Contract</h1>
+    <p class="lead text-muted">
+        Register a new client contract into the Global Logistics Management System.
+        Provide accurate details to ensure compliance, transparency, and seamless operations.
+    </p>
+</div>
+
+<!-- Form Card -->
+<div class="card shadow-lg border-0">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0"><i class="bi bi-file-earmark-plus"></i> Contract Information</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            
+            <!-- Client -->
+            <div class="mb-3">
+                <label asp-for="ClientId" class="form-label fw-semibold">
+                    <i class="bi bi-person"></i> Client
+                </label>
+                <select asp-for="ClientId" asp-items="ViewBag.Clients" class="form-select">
+                    <option value="">-- Select Client --</option>
+                </select>
+                <span asp-validation-for="ClientId" class="text-danger"></span>
+            </div>
+
+            <!-- Start Date -->
+            <div class="mb-3">
+                <label asp-for="StartDate" class="form-label fw-semibold">
+                    <i class="bi bi-calendar-event"></i> Start Date
+                </label>
+                <input asp-for="StartDate" type="date" class="form-control" />
+            </div>
+
+            <!-- End Date -->
+            <div class="mb-3">
+                <label asp-for="EndDate" class="form-label fw-semibold">
+                    <i class="bi bi-calendar-x"></i> End Date
+                </label>
+                <input asp-for="EndDate" type="date" class="form-control" />
+            </div>
+
+            <!-- Service Level -->
+            <div class="mb-3">
+                <label asp-for="ServiceLevel" class="form-label fw-semibold">
+                    <i class="bi bi-gear"></i> Service Level
+                </label>
+                <input asp-for="ServiceLevel" class="form-control" placeholder="e.g. Premium Freight" />
+            </div>
+
+            <!-- Agreement Upload -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">
+                    <i class="bi bi-file-earmark-pdf"></i> Signed Agreement (PDF only)
+                </label>
+                <input type="file" name="file" class="form-control" />
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Contracts
+                </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle"></i> Save Contract
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Footer Narrative -->
+<div class="mt-4 text-muted text-center">
+    <small>
+        Creating contracts in GLMS ensures accurate client agreements, compliance with service levels,
+        and operational efficiency across global logistics.
+    </small>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
