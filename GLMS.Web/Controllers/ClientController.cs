@@ -1,22 +1,25 @@
 ﻿using GLMS.Core.Entities;
-using GLMS.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
+using System.Net.Http.Json;
 
 namespace GLMS.Web.Controllers
 {
     public class ClientController : Controller
     {
-        private readonly IClientService _clientService;
+        private readonly HttpClient _httpClient;
         private readonly ILogger<ClientController> _logger;
+        private readonly string _baseUrl;
+
+        private string ClientsUrl => $"{_baseUrl}api/clients";
 
         public ClientController(
-            IClientService clientService,
+            IHttpClientFactory httpClientFactory,
+            IConfiguration configuration,
             ILogger<ClientController> logger)
         {
-            _clientService = clientService;
+            _httpClient = httpClientFactory.CreateClient();
             _logger = logger;
+            _baseUrl = configuration["ApiSettings:BaseUrl"]!;
         }
 
         // =========================
@@ -24,10 +27,9 @@ namespace GLMS.Web.Controllers
         // =========================
         public async Task<IActionResult> Index()
         {
-            _logger.LogInformation("Fetching all clients...");
+            _logger.LogInformation("Fetching clients from API...");
 
-            var clients = await _clientService.GetAllClientsAsync();
-
+            var clients = await _httpClient.GetFromJsonAsync<List<Client>>(ClientsUrl);
             return View(clients);
         }
 
@@ -36,8 +38,6 @@ namespace GLMS.Web.Controllers
         // =========================
         public IActionResult Create()
         {
-            _logger.LogInformation("Loading Create Client page");
-
             return View();
         }
 
@@ -48,17 +48,16 @@ namespace GLMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Client client)
         {
-            _logger.LogInformation("POST Create Client triggered");
-
             if (!ModelState.IsValid)
+                return View(client);
+
+            var response = await _httpClient.PostAsJsonAsync(ClientsUrl, client);
+
+            if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Client ModelState invalid");
+                ModelState.AddModelError("", "Failed to create client via API.");
                 return View(client);
             }
-
-            await _clientService.CreateClientAsync(client);
-
-            _logger.LogInformation("Client created successfully");
 
             return RedirectToAction(nameof(Index));
         }
@@ -68,81 +67,72 @@ namespace GLMS.Web.Controllers
         // =========================
         public async Task<IActionResult> Details(int id)
         {
-            var client = await _clientService.GetClientByIdAsync(id);
+            var client = await _httpClient.GetFromJsonAsync<Client>($"{ClientsUrl}/{id}");
 
             if (client == null)
-            {
-                _logger.LogWarning($"Client not found: {id}");
                 return NotFound();
-            }
 
             return View(client);
         }
 
         // =========================
-        // EDIT (GET)
+        // EDIT
         // =========================
         public async Task<IActionResult> Edit(int id)
         {
-            var client = await _clientService.GetClientByIdAsync(id);
+            var client = await _httpClient.GetFromJsonAsync<Client>($"{ClientsUrl}/{id}");
 
             if (client == null)
-            {
                 return NotFound();
-            }
 
             return View(client);
         }
 
-        // =========================
-        // EDIT (POST)
-        // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Client client)
         {
             if (id != client.Id)
-            {
                 return NotFound();
-            }
 
             if (!ModelState.IsValid)
+                return View(client);
+
+            var response = await _httpClient.PutAsJsonAsync($"{ClientsUrl}/{id}", client);
+
+            if (!response.IsSuccessStatusCode)
             {
+                ModelState.AddModelError("", "Failed to update client via API.");
                 return View(client);
             }
-
-            await _clientService.UpdateClientAsync(client);
-
-            _logger.LogInformation($"Client updated: {client.Id}");
 
             return RedirectToAction(nameof(Index));
         }
 
         // =========================
-        // DELETE (GET)
+        // DELETE
         // =========================
         public async Task<IActionResult> Delete(int id)
         {
-            var client = await _clientService.GetClientByIdAsync(id);
+            var client = await _httpClient.GetFromJsonAsync<Client>($"{ClientsUrl}/{id}");
 
             if (client == null)
-            {
                 return NotFound();
-            }
 
             return View(client);
         }
 
-        // =========================
-        // DELETE (POST)
-        // =========================
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _clientService.DeleteClientAsync(id);
+            var response = await _httpClient.DeleteAsync($"{ClientsUrl}/{id}");
 
-            _logger.LogInformation($"Client deleted: {id}");
+            if (!response.IsSuccessStatusCode)
+            {
+                ModelState.AddModelError("", "Failed to delete client via API.");
+                return RedirectToAction(nameof(Index));
+            }
 
             return RedirectToAction(nameof(Index));
         }

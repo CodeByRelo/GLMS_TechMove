@@ -1,4 +1,6 @@
-﻿namespace GLMS.Web.Services.Interfaces
+﻿using System.Threading.Tasks;
+
+namespace GLMS.API.Services.Interfaces
 {
     public interface ICurrencyService
     {

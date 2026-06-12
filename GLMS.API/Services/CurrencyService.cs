@@ -1,9 +1,9 @@
-﻿using GLMS.Web.Services.Interfaces;
+﻿using GLMS.API.Services.Interfaces;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace GLMS.Web.Services
+namespace GLMS.API.Services
 {
     public class CurrencyService : ICurrencyService
     {

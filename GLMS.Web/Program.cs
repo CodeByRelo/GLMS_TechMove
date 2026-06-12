@@ -1,52 +1,35 @@
-using GLMS.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using GLMS.Core.Interfaces;
-using GLMS.Infrastructure.Repositories;
 using GLMS.Web.Services;
 using GLMS.Web.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. MVC SERVICES
+// =====================================================
+// MVC SERVICES
 // =====================================================
 builder.Services.AddControllersWithViews();
 
-
-// 2. DATABASE
 // =====================================================
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        x => x.MigrationsAssembly("GLMS.Infrastructure")
-    )
-);
-
-
-// 3. REPOSITORIES (Data Layer)
+// HTTP CLIENT WRAPPER (IMPORTANT FIX)
 // =====================================================
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IContractRepository, ContractRepository>();
-builder.Services.AddScoped<IServiceRequestRepository, ServiceRequestRepository>();
+// This registers ApiClient properly so DI can resolve it
+builder.Services.AddHttpClient<ApiClient>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7085/");
+});
 
-
-// 4. SERVICES (Business Layer)
 // =====================================================
-builder.Services.AddScoped<IContractService, ContractService>();
-builder.Services.AddScoped<IServiceRequestService, ServiceRequestService>();
-builder.Services.AddScoped<IClientRepository, ClientRepository>();
-builder.Services.AddScoped<IClientService, ClientService>();
-
-
-// 5. EXTERNAL SERVICES (API / HTTP CLIENTS)
+// API-BASED SERVICES (WRAPPERS AROUND HTTP CALLS)
 // =====================================================
-builder.Services.AddHttpClient<ICurrencyService, CurrencyService>();
-
+builder.Services.AddScoped<IClientService, ClientApiService>();
+builder.Services.AddScoped<IContractService, ContractApiService>();
+builder.Services.AddScoped<IServiceRequestService, ServiceRequestApiService>();
+builder.Services.AddScoped<ICurrencyService, CurrencyApiService>();
 
 // =====================================================
 var app = builder.Build();
 
-
-// 6. PIPELINE CONFIGURATION
+// =====================================================
+// PIPELINE CONFIGURATION
 // =====================================================
 if (!app.Environment.IsDevelopment())
 {

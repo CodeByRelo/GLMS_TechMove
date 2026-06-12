@@ -1,12 +1,12 @@
 ﻿using GLMS.Core.Entities;
 using GLMS.Core.Enums;
 using GLMS.Core.Interfaces;
-using GLMS.Web.Services.Interfaces;
+using GLMS.API.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace GLMS.Web.Services
+namespace GLMS.API.Services
 {
     public class ServiceRequestService : IServiceRequestService
     {

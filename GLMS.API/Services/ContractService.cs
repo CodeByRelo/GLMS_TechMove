@@ -1,12 +1,12 @@
 ﻿using GLMS.Core.Entities;
 using GLMS.Core.Enums;
 using GLMS.Core.Interfaces;
-using GLMS.Web.Services.Interfaces;
+using GLMS.API.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace GLMS.Web.Services
+namespace GLMS.API.Services
 {
     public class ContractService : IContractService
     {
@@ -88,6 +88,19 @@ namespace GLMS.Web.Services
         // 🔒 Centralized business rules for status logic
         private void ApplyBusinessRules(Contract contract)
         {
+            // ONLY apply rules if status has NOT been manually set via PATCH
+
+            // If user manually set a status like OnHold/Expired via PATCH,
+            // we do NOT override it.
+
+            if (contract.Status == ContractStatus.OnHold ||
+                contract.Status == ContractStatus.Expired ||
+                contract.Status == ContractStatus.Active)
+            {
+                return; // 🔥 PATCH wins
+            }
+
+            // Otherwise allow system defaults for new contracts
             if (contract.EndDate < DateTime.Now)
             {
                 contract.Status = ContractStatus.Expired;

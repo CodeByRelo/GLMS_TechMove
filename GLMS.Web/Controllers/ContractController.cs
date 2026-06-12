@@ -1,27 +1,36 @@
 ﻿using GLMS.Core.Entities;
 using GLMS.Core.Enums;
-using GLMS.Web.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace GLMS.Web.Controllers
 {
     public class ContractController : Controller
     {
-        private readonly IContractService _contractService;
+        private readonly HttpClient _httpClient;
         private readonly ILogger<ContractController> _logger;
+        private readonly string _apiBaseUrl;
+
+        private string ApiUrl => $"{_apiBaseUrl}api/contracts";
 
         public ContractController(
-            IContractService contractService,
+            IHttpClientFactory httpClientFactory,
+            IConfiguration configuration,
             ILogger<ContractController> logger)
         {
-            _contractService = contractService;
+            _httpClient = httpClientFactory.CreateClient();
             _logger = logger;
+
+            _apiBaseUrl = configuration["ApiSettings:BaseUrl"]
+                ?? throw new Exception("API BaseUrl missing in configuration");
         }
 
         // =========================
@@ -29,45 +38,46 @@ namespace GLMS.Web.Controllers
         // =========================
         public async Task<IActionResult> Index()
         {
-            var contracts = await _contractService.GetAllContractsAsync();
-            return View(contracts);
+            var contracts = await _httpClient.GetFromJsonAsync<List<Contract>>(ApiUrl);
+            return View(contracts ?? new List<Contract>());
         }
 
         // =========================
-        // CREATE (GET)
+        // CREATE
         // =========================
-        public async Task<IActionResult> Create()
-        {
-            await LoadClients();
-            return View();
-        }
+        public IActionResult Create() => View();
 
-        // =========================
-        // CREATE (POST)
-        // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Contract contract, IFormFile file)
         {
             if (!ModelState.IsValid)
-            {
-                await LoadClients();
                 return View(contract);
-            }
 
             if (file != null && file.Length > 0)
             {
-                var result = await SavePdf(file);
-                if (result == null)
-                {
-                    ModelState.AddModelError("", "Only PDF files are allowed.");
-                    await LoadClients();
-                    return View(contract);
-                }
-                contract.SignedAgreementPath = result;
+                var fileName = Guid.NewGuid() + "_" + file.FileName;
+                var folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/contracts");
+
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+
+                var path = Path.Combine(folder, fileName);
+
+                using var stream = System.IO.File.Create(path);
+                await file.CopyToAsync(stream);
+
+                contract.SignedAgreementPath = "/contracts/" + fileName;
             }
 
-            await _contractService.CreateContractAsync(contract);
+            var response = await _httpClient.PostAsJsonAsync(ApiUrl, contract);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Failed to create contract via API");
+                return View(contract);
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -76,158 +86,131 @@ namespace GLMS.Web.Controllers
         // =========================
         public async Task<IActionResult> Details(int id)
         {
-            var contract = await _contractService.GetContractByIdAsync(id);
-            if (contract == null) return NotFound();
-            return View(contract);
+            var contract = await _httpClient.GetFromJsonAsync<Contract>($"{ApiUrl}/{id}");
+            return contract == null ? NotFound() : View(contract);
         }
 
         // =========================
-        // EDIT (GET)
+        // EDIT
         // =========================
         public async Task<IActionResult> Edit(int id)
         {
-            var contract = await _contractService.GetContractByIdAsync(id);
-            if (contract == null) return NotFound();
-
-            await LoadClients();
-            return View(contract);
+            var contract = await _httpClient.GetFromJsonAsync<Contract>($"{ApiUrl}/{id}");
+            return contract == null ? NotFound() : View(contract);
         }
 
-        // =========================
-        // EDIT (POST)
-        // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Contract contract, IFormFile file)
         {
-            if (id != contract.Id) return NotFound();
+            if (id != contract.Id)
+                return NotFound();
 
             if (!ModelState.IsValid)
-            {
-                await LoadClients();
                 return View(contract);
-            }
 
             if (file != null && file.Length > 0)
             {
-                var result = await SavePdf(file);
-                if (result == null)
-                {
-                    ModelState.AddModelError("", "Only PDF files are allowed.");
-                    await LoadClients();
-                    return View(contract);
-                }
-                contract.SignedAgreementPath = result;
+                var fileName = Guid.NewGuid() + "_" + file.FileName;
+                var folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/contracts");
+
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+
+                var path = Path.Combine(folder, fileName);
+
+                using var stream = System.IO.File.Create(path);
+                await file.CopyToAsync(stream);
+
+                contract.SignedAgreementPath = "/contracts/" + fileName;
             }
 
-            await _contractService.UpdateContractAsync(contract);
+            var response = await _httpClient.PutAsJsonAsync($"{ApiUrl}/{id}", contract);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Failed to update contract via API");
+                return View(contract);
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
         // =========================
-        // DELETE (GET)
+        // PATCH STATUS
         // =========================
-        public async Task<IActionResult> Delete(int id)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateStatus(int id, string status)
         {
-            var contract = await _contractService.GetContractByIdAsync(id);
-            if (contract == null) return NotFound();
-            return View(contract);
+            if (!Enum.TryParse<ContractStatus>(status, true, out var parsedStatus))
+            {
+                TempData["Error"] = "Invalid status.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var request = new HttpRequestMessage(
+                HttpMethod.Patch,
+                $"{ApiUrl}/{id}/status"
+            )
+            {
+                Content = JsonContent.Create(parsedStatus)
+            };
+
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+                TempData["Error"] = "Failed to update status.";
+            else
+                TempData["Success"] = "Status updated.";
+
+            return RedirectToAction(nameof(Index));
         }
 
         // =========================
-        // DELETE (POST)
+        // DELETE
         // =========================
+        public async Task<IActionResult> Delete(int id)
+        {
+            var contract = await _httpClient.GetFromJsonAsync<Contract>($"{ApiUrl}/{id}");
+            return contract == null ? NotFound() : View(contract);
+        }
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            try
-            {
-                await _contractService.DeleteContractAsync(id);
-                _logger.LogInformation($"Contract deleted: {id}");
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                // Log the error
-                _logger.LogError(ex, $"Error deleting contract {id}");
+            var response = await _httpClient.DeleteAsync($"{ApiUrl}/{id}");
 
-                // Add a user-friendly error message
-                ModelState.AddModelError("", ex.Message);
+            if (!response.IsSuccessStatusCode)
+                _logger.LogError($"Failed to delete contract {id}");
 
-                // Reload the contract so we can show the Delete view again
-                var contract = await _contractService.GetContractByIdAsync(id);
-                if (contract == null)
-                {
-                    return NotFound();
-                }
-
-                return View(contract);
-            }
+            return RedirectToAction(nameof(Index));
         }
 
-
         // =========================
-        // DOWNLOAD PDF
+        // 🔥 PDF DOWNLOAD (RESTORED CLEANLY)
         // =========================
         public IActionResult Download(string filePath)
         {
-            if (string.IsNullOrEmpty(filePath)) return NotFound();
+            if (string.IsNullOrWhiteSpace(filePath))
+                return NotFound();
 
-            var fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", filePath.TrimStart('/'));
-            if (!System.IO.File.Exists(fullPath)) return NotFound();
+            if (!filePath.StartsWith("/contracts/"))
+                return BadRequest("Invalid file path");
+
+            var fullPath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                filePath.TrimStart('/')
+            );
+
+            if (!System.IO.File.Exists(fullPath))
+                return NotFound();
 
             var bytes = System.IO.File.ReadAllBytes(fullPath);
+
             return File(bytes, "application/pdf", Path.GetFileName(fullPath));
         }
-
-        // =========================
-        // LOAD CLIENTS
-        // =========================
-        private async Task LoadClients()
-        {
-            var clients = await _contractService.GetClientsAsync();
-            ViewBag.Clients = new SelectList(clients, "Id", "Name");
-        }
-
-        // =========================
-        // SAVE PDF HELPER
-        // =========================
-        private async Task<string?> SavePdf(IFormFile file)
-        {
-            var extension = Path.GetExtension(file.FileName);
-            if (extension.ToLower() != ".pdf") return null;
-
-            var fileName = Guid.NewGuid() + ".pdf";
-            var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/contracts");
-
-            if (!Directory.Exists(uploadFolder))
-                Directory.CreateDirectory(uploadFolder);
-
-            var filePath = Path.Combine(uploadFolder, fileName);
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            return "/contracts/" + fileName;
-        }
-
-        public async Task<IActionResult> Search(DateTime? startDate, DateTime? endDate, string status)
-        {
-            var contracts = await _contractService.GetAllContractsAsync();
-
-            var filtered = contracts.Where(c =>
-                (!startDate.HasValue || c.StartDate >= startDate) &&
-                (!endDate.HasValue || c.EndDate <= endDate) &&
-                (string.IsNullOrEmpty(status) ||
-                 (Enum.TryParse<ContractStatus>(status, true, out var parsedStatus) && c.Status == parsedStatus))
-            ).ToList();
-
-            return View("Index", filtered);
-        }
-
-
-
     }
 }

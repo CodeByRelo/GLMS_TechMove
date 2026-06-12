@@ -1,30 +1,27 @@
 ﻿using GLMS.Core.Entities;
-using GLMS.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Logging;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Net.Http.Json;
 
 namespace GLMS.Web.Controllers
 {
     public class ServiceRequestController : Controller
     {
-        private readonly IServiceRequestService _serviceRequestService;
-        private readonly IContractService _contractService;
-        private readonly ICurrencyService _currencyService;
+        private readonly HttpClient _httpClient;
         private readonly ILogger<ServiceRequestController> _logger;
+        private readonly string _baseUrl;
+
+        private string RequestsUrl => $"{_baseUrl}api/servicerequests";
+        private string ContractsUrl => $"{_baseUrl}api/contracts";
 
         public ServiceRequestController(
-            IServiceRequestService serviceRequestService,
-            IContractService contractService,
-            ICurrencyService currencyService,
+            IHttpClientFactory httpClientFactory,
+            IConfiguration configuration,
             ILogger<ServiceRequestController> logger)
         {
-            _serviceRequestService = serviceRequestService;
-            _contractService = contractService;
-            _currencyService = currencyService;
+            _httpClient = httpClientFactory.CreateClient();
             _logger = logger;
+            _baseUrl = configuration["ApiSettings:BaseUrl"]!;
         }
 
         // =========================
@@ -32,22 +29,12 @@ namespace GLMS.Web.Controllers
         // =========================
         public async Task<IActionResult> Index()
         {
-            var requests = await _serviceRequestService.GetAllAsync();
-
-            // Ensure contracts and clients are loaded for display
-            foreach (var req in requests)
-            {
-                if (req.Contract == null)
-                {
-                    req.Contract = await _contractService.GetContractByIdAsync(req.ContractId);
-                }
-            }
-
+            var requests = await _httpClient.GetFromJsonAsync<List<ServiceRequest>>(RequestsUrl);
             return View(requests);
         }
 
         // =========================
-        // CREATE GET
+        // CREATE (GET)
         // =========================
         public async Task<IActionResult> Create()
         {
@@ -56,7 +43,7 @@ namespace GLMS.Web.Controllers
         }
 
         // =========================
-        // CREATE POST
+        // CREATE (POST)
         // =========================
         [HttpPost]
         public async Task<IActionResult> Create(ServiceRequest request)
@@ -67,23 +54,15 @@ namespace GLMS.Web.Controllers
                 return View(request);
             }
 
-            // Business Rule: Contract must be active
-            bool active = await _contractService.IsContractActive(request.ContractId);
-            if (!active)
+            var response = await _httpClient.PostAsJsonAsync(RequestsUrl, request);
+
+            if (!response.IsSuccessStatusCode)
             {
-                ModelState.AddModelError("", "Cannot create request for inactive contract.");
+                _logger.LogError("Failed to create service request via API");
                 await LoadContracts();
                 return View(request);
             }
 
-            // Currency Conversion
-            request.CostZAR = await _currencyService.ConvertUsdToZar(request.CostUSD);
-
-            // Default values
-            request.Status = "Pending";
-            request.CreatedDate = System.DateTime.Now;
-
-            await _serviceRequestService.CreateServiceRequestAsync(request);
             return RedirectToAction(nameof(Index));
         }
 
@@ -92,73 +71,102 @@ namespace GLMS.Web.Controllers
         // =========================
         public async Task<IActionResult> Details(int id)
         {
-            var request = await _serviceRequestService.GetByIdAsync(id);
-            if (request == null) return NotFound();
+            var request = await _httpClient.GetFromJsonAsync<ServiceRequest>($"{RequestsUrl}/{id}");
+
+            if (request == null)
+                return NotFound();
+
             return View(request);
         }
 
         // =========================
-        // EDIT GET
+        // EDIT (GET)
         // =========================
         public async Task<IActionResult> Edit(int id)
         {
-            var request = await _serviceRequestService.GetByIdAsync(id);
-            if (request == null) return NotFound();
+            var request = await _httpClient.GetFromJsonAsync<ServiceRequest>($"{RequestsUrl}/{id}");
+
+            if (request == null)
+                return NotFound();
 
             await LoadContracts();
             return View(request);
         }
 
         // =========================
-        // EDIT POST
+        // EDIT (POST)
         // =========================
         [HttpPost]
-        public async Task<IActionResult> Edit(ServiceRequest request)
+        public async Task<IActionResult> Edit(int id, ServiceRequest request)
         {
+            if (id != request.Id)
+                return NotFound();
+
             if (!ModelState.IsValid)
             {
                 await LoadContracts();
                 return View(request);
             }
 
-            request.CostZAR = await _currencyService.ConvertUsdToZar(request.CostUSD);
-            await _serviceRequestService.UpdateAsync(request);
+            var response = await _httpClient.PutAsJsonAsync($"{RequestsUrl}/{id}", request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Failed to update service request via API");
+                await LoadContracts();
+                return View(request);
+            }
 
             return RedirectToAction(nameof(Index));
         }
 
         // =========================
-        // DELETE GET
+        // DELETE (GET)
         // =========================
         public async Task<IActionResult> Delete(int id)
         {
-            var request = await _serviceRequestService.GetByIdAsync(id);
-            if (request == null) return NotFound();
+            var request = await _httpClient.GetFromJsonAsync<ServiceRequest>($"{RequestsUrl}/{id}");
+
+            if (request == null)
+                return NotFound();
+
             return View(request);
         }
 
         // =========================
-        // DELETE POST
+        // DELETE (POST)
         // =========================
         [HttpPost]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _serviceRequestService.DeleteAsync(id);
+            var response = await _httpClient.DeleteAsync($"{RequestsUrl}/{id}");
+
+            if (!response.IsSuccessStatusCode)
+                _logger.LogError($"Failed to delete service request {id}");
+
             return RedirectToAction(nameof(Index));
         }
 
         // =========================
-        // LOAD CONTRACTS
+        // LOAD CONTRACTS (DROPDOWN)
         // =========================
         private async Task LoadContracts()
         {
-            var contracts = await _contractService.GetAllContractsAsync();
+            var contracts = await _httpClient.GetFromJsonAsync<List<Contract>>(ContractsUrl);
 
-            var contractList = contracts.Select(c => new
+            var contractList = new List<object>();
+
+            if (contracts != null)
             {
-                c.Id,
-                Display = $"Contract #{c.Id} - {c.Client?.Name} ({c.ServiceLevel}) [{c.StartDate:yyyy-MM-dd} to {c.EndDate:yyyy-MM-dd}]"
-            });
+                foreach (var c in contracts)
+                {
+                    contractList.Add(new
+                    {
+                        c.Id,
+                        Display = $"Contract #{c.Id} - {c.ServiceLevel}"
+                    });
+                }
+            }
 
             ViewBag.Contracts = new SelectList(contractList, "Id", "Display");
         }

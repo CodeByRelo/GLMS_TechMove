@@ -2,7 +2,6 @@ using GLMS.Core.Enums;
 using GLMS.Web.Models;
 using GLMS.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
 namespace GLMS.Web.Controllers
 {
@@ -10,30 +9,53 @@ namespace GLMS.Web.Controllers
     {
         private readonly IContractService _contractService;
         private readonly IServiceRequestService _serviceRequestService;
+        private readonly ILogger<HomeController> _logger;
 
-        public HomeController(IContractService contractService, IServiceRequestService serviceRequestService)
+        public HomeController(
+            IContractService contractService,
+            IServiceRequestService serviceRequestService,
+            ILogger<HomeController> logger)
         {
             _contractService = contractService;
             _serviceRequestService = serviceRequestService;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
         {
-            var contracts = await _contractService.GetAllContractsAsync();
-            var requests = await _serviceRequestService.GetAllAsync();
-
-            var dashboard = new HomeDashboardViewModel
+            try
             {
-                TotalContracts = contracts.Count,
-                ActiveContracts = contracts.Count(c => c.Status == ContractStatus.Active),
-                ExpiredContracts = contracts.Count(c => c.Status == ContractStatus.Expired),
+                var contracts = await _contractService.GetAllContractsAsync();
+                var requests = await _serviceRequestService.GetAllAsync();
 
-                // decided to treat Status as string instead of enum since ServiceRequest doesn't have a defined enum for status, and it allows for more flexibility in case of future additions
-                PendingRequests = requests.Count(r => r.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase)),
-                CompletedRequests = requests.Count(r => r.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase))
-            };
+                var dashboard = new HomeDashboardViewModel
+                {
+                    TotalContracts = contracts.Count,
+                    ActiveContracts = contracts.Count(c => c.Status == ContractStatus.Active),
+                    ExpiredContracts = contracts.Count(c => c.Status == ContractStatus.Expired),
 
-            return View(dashboard);
+                    PendingRequests = requests.Count(r =>
+                        r.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase)),
+
+                    CompletedRequests = requests.Count(r =>
+                        r.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase))
+                };
+
+                return View(dashboard);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Dashboard failed to load");
+
+                return View(new HomeDashboardViewModel
+                {
+                    TotalContracts = 0,
+                    ActiveContracts = 0,
+                    ExpiredContracts = 0,
+                    PendingRequests = 0,
+                    CompletedRequests = 0
+                });
+            }
         }
 
         // 🛡️ Privacy Policy Page
@@ -42,6 +64,4 @@ namespace GLMS.Web.Controllers
             return View();
         }
     }
-
-
 }
