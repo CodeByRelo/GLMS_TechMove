@@ -1,10 +1,12 @@
 using GLMS.Core.Enums;
+using GLMS.Web.Filters;
 using GLMS.Web.Models;
 using GLMS.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GLMS.Web.Controllers
 {
+    [SessionAuth]
     public class HomeController : Controller
     {
         private readonly IContractService _contractService;
@@ -58,7 +60,6 @@ namespace GLMS.Web.Controllers
             }
         }
 
-        // 🛡️ Privacy Policy Page
         public IActionResult Privacy()
         {
             return View();
