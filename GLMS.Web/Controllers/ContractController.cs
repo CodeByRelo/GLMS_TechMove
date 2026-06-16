@@ -43,6 +43,27 @@ namespace GLMS.Web.Controllers
         }
 
         // =========================
+        // SEARCH/FILTER
+        // =========================
+        public async Task<IActionResult> Search(DateTime? startDate, DateTime? endDate, string status)
+        {
+            try
+            {
+                var url = $"{ApiUrl}/search?startDate={startDate}&endDate={endDate}&status={status}";
+
+                var contracts = await _httpClient.GetFromJsonAsync<List<Contract>>(url);
+
+                return View("Index", contracts ?? new List<Contract>());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Contract search failed");
+
+                return View("Index", new List<Contract>());
+            }
+        }
+
+        // =========================
         // CREATE
         // =========================
         public IActionResult Create() => View();

@@ -14,12 +14,13 @@
     <!-- 🌐 Navbar -->
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+
             <div class="container-fluid">
 
-                <!-- LEFT SECTION -->
+                <!-- LEFT: BRAND -->
                 <a class="navbar-brand fw-bold"
-                       asp-controller="Home"
-                       asp-action="Index">
+                   asp-controller="Home"
+                   asp-action="Index">
                     <i class="bi bi-globe"></i> GLMS Portal - Tshwarelo Lephoto
                 </a>
 
@@ -34,55 +35,72 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <!-- RIGHT SECTION -->
-                <div class="collapse navbar-collapse justify-content-end" id="navbarMain">
-                    <ul class="navbar-nav mb-2 mb-lg-0">
+                <div class="collapse navbar-collapse" id="navbarMain">
+
+                    <!-- CENTER: NAV LINKS -->
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0 text-center">
 
                         <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active fw-semibold text-warning" : "")"
-                                   asp-controller="Home"
-                                   asp-action="Index">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active text-warning fw-semibold" : "")"
+                               asp-controller="Home"
+                               asp-action="Index">
                                 <i class="bi bi-speedometer2"></i> Dashboard
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Contract" ? "active fw-semibold text-warning" : "")"
-                                   asp-controller="Contract"
-                                   asp-action="Index">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Contract" ? "active text-warning fw-semibold" : "")"
+                               asp-controller="Contract"
+                               asp-action="Index">
                                 <i class="bi bi-file-earmark-text"></i> Contracts
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ServiceRequest" ? "active fw-semibold text-warning" : "")"
-                                   asp-controller="ServiceRequest"
-                                   asp-action="Index">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ServiceRequest" ? "active text-warning fw-semibold" : "")"
+                               asp-controller="ServiceRequest"
+                               asp-action="Index">
                                 <i class="bi bi-truck"></i> Requests
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Client" ? "active fw-semibold text-warning" : "")"
-                                   asp-controller="Client"
-                                   asp-action="Index">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Client" ? "active text-warning fw-semibold" : "")"
+                               asp-controller="Client"
+                               asp-action="Index">
                                 <i class="bi bi-people"></i> Clients
                             </a>
                         </li>
 
-                        <!-- 🔒 Privacy Policy Link -->
                         <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active fw-semibold text-warning" : "")"
-                                   asp-controller="Home"
-                                   asp-action="Privacy">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home"
+                                                                       && ViewContext.RouteData.Values["action"]?.ToString() == "Privacy"
+                                                                       ? "active text-warning fw-semibold"
+                                                                       : "")"
+                               asp-controller="Home"
+                               asp-action="Privacy">
                                 <i class="bi bi-shield-lock"></i> Privacy
                             </a>
                         </li>
 
                     </ul>
-                </div>
 
+                    <!-- RIGHT: LOGOUT -->
+                    <ul class="navbar-nav ms-auto">
+
+                        <li class="nav-item">
+                            <a class="btn btn-outline-warning btn-sm px-3"
+                               asp-controller="Auth"
+                               asp-action="Logout">
+                                <i class="bi bi-box-arrow-right"></i> Logout
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
             </div>
+
         </nav>
     </header>
 
