@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="docker-compose.yml" />
+  </Folder>
   <Project Path="GLMS.API/GLMS.API.csproj" Id="8cd584f7-5814-45fc-a7fb-1f944f465382" />
   <Project Path="GLMS.Core/GLMS.Core.csproj" />
   <Project Path="GLMS.Infrastructure/GLMS.Infrastructure.csproj" />
